@@ -62,7 +62,7 @@ export const reverce = (data: Array<Array<CellStatus>>, cell: CellInfo): Array<A
   // ユーザが配置したコマを追加
   targetCellPositions.push(cell);
 
-  const result = [...data];
+  const result = data.map((obj) => [...obj]);
 
   // コマをひっくり返す
   targetCellPositions.forEach((p) => {
