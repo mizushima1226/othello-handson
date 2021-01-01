@@ -72,6 +72,31 @@ export const reverce = (data: Array<Array<CellStatus>>, cell: CellInfo): Array<A
   return result;
 };
 
+export const getPiecesNum = (data: Array<Array<CellStatus>>): { blackNum: number; whiteNum: number } => {
+  let blackNum: number = 0;
+  let whiteNum: number = 0;
+
+  data
+    .reduce((preArray, currentArray) => {
+      preArray.push(...currentArray);
+      return preArray;
+    }, [])
+    .forEach((status) => {
+      switch (status) {
+        case CellStatus.Black:
+          blackNum++;
+          break;
+        case CellStatus.White:
+          whiteNum++;
+          break;
+        default:
+          break;
+      }
+    });
+
+  return { blackNum, whiteNum };
+};
+
 const getNextPosition = (p: Position, direction: Direction): Position | null => {
   const rowIndex = p.rowIndex + direction.rowIndex;
   const colIndex = p.colIndex + direction.colIndex;

@@ -5,7 +5,7 @@ import { Cell } from './Cell';
 
 import { CellInfo, CellStatus } from '../types/type';
 import { ROW_MAX_NUM, COL_MAX_NUM } from '../utils/const';
-import { reverce } from '../utils/othelloUtil';
+import { reverce, getPiecesNum } from '../utils/othelloUtil';
 
 const initHistory = (): Array<Array<CellStatus>> => {
   const temRow = Array(COL_MAX_NUM).fill(CellStatus.Empty);
@@ -25,12 +25,16 @@ const initHistory = (): Array<Array<CellStatus>> => {
 
 export const Othello = () => {
   const [histories, setHistories] = useState([initHistory()]);
-  const [turnCount, setRurnCount] = useState(0);
+  const [turnCount, setTurnCount] = useState(0);
+  const [blackNum, setBlackNum] = useState(2);
+  const [whiteNum, setWhiteNum] = useState(2);
   const [isFirstTurn, setIsFirstTurn] = useState(true);
 
   const onClickCell = (rowIndex: number, colIndex: number) => {
     const cell: CellInfo = { rowIndex, colIndex, status: isFirstTurn ? CellStatus.Black : CellStatus.White };
-    const result = reverce(histories[turnCount], cell);
+    const target = histories[turnCount];
+
+    const result = reverce(target, cell);
 
     if (!result) {
       return;
@@ -39,15 +43,23 @@ export const Othello = () => {
     const newHistories = histories.map((history) => history.map((row) => [...row]));
     newHistories.push(result);
 
+    const { blackNum, whiteNum } = getPiecesNum(target);
+
     setHistories(newHistories);
-    setRurnCount(turnCount + 1);
+    setTurnCount(turnCount + 1);
     setIsFirstTurn(!isFirstTurn);
+    setBlackNum(blackNum);
+    setWhiteNum(whiteNum);
   };
 
   return (
     <>
       <SPage>
-        <p>{isFirstTurn ? '黒のターン' : '白のターン'}</p>
+        <SGameInfo>
+          <p>{isFirstTurn ? '黒のターン' : '白のターン'}</p>
+          <p>黒の数:{blackNum}</p>
+          <p>白の数:{whiteNum}</p>
+        </SGameInfo>
         {histories[turnCount].map((row, rowIndex) => (
           <SRow key={rowIndex}>
             {row.map((status, colIndex) => (
@@ -62,9 +74,13 @@ export const Othello = () => {
 
 const SPage = styled.div`
   margin-top: 100px;
-  // background-color: #000;
 `;
 
 const SRow = styled.div`
   display: flex;
+`;
+
+const SGameInfo = styled.div`
+  display: flex;
+  justify-content: space-between;
 `;
