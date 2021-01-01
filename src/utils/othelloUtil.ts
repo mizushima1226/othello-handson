@@ -1,4 +1,4 @@
-import { CellStatus, CellInfo, Position } from '../types/type';
+import { CellStatus, Judgement, CellInfo, Position } from '../types/type';
 import { ROW_MAX_NUM, COL_MAX_NUM } from '../utils/const';
 
 type Direction = {
@@ -95,6 +95,23 @@ export const getPiecesNum = (data: Array<Array<CellStatus>>): { blackNum: number
     });
 
   return { blackNum, whiteNum };
+};
+
+export const judge = (blackNum: number, whiteNum: number): Judgement => {
+  if (blackNum === 0) return Judgement.WhiteIsWin;
+  if (whiteNum === 0) return Judgement.BlackIsWin;
+
+  if (blackNum + whiteNum === ROW_MAX_NUM * COL_MAX_NUM) {
+    if (blackNum > whiteNum) {
+      return Judgement.BlackIsWin;
+    } else if (blackNum < whiteNum) {
+      return Judgement.WhiteIsWin;
+    } else {
+      return Judgement.Draw;
+    }
+  }
+
+  return Judgement.None;
 };
 
 const getNextPosition = (p: Position, direction: Direction): Position | null => {
