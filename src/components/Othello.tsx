@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { Cell } from './Cell';
 
-import { CellInfo, CellStatus } from '../types/type';
+import { Judgement, CellInfo, CellStatus } from '../types/type';
 import { ROW_MAX_NUM, COL_MAX_NUM } from '../utils/const';
-import { reverce, getPiecesNum } from '../utils/othelloUtil';
+import { reverce, getPiecesNum, judge } from '../utils/othelloUtil';
 
 const initHistory = (): Array<Array<CellStatus>> => {
   const temRow = Array(COL_MAX_NUM).fill(CellStatus.Empty);
@@ -14,11 +14,12 @@ const initHistory = (): Array<Array<CellStatus>> => {
     .map(() => [...temRow]);
 
   // 黒を配置
-  data[3][3] = CellStatus.Black;
-  data[4][4] = CellStatus.Black;
+  data[3][4] = CellStatus.Black;
+  data[4][3] = CellStatus.Black;
+
   // 白を配置
-  data[3][4] = CellStatus.White;
-  data[4][3] = CellStatus.White;
+  data[3][3] = CellStatus.White;
+  data[4][4] = CellStatus.White;
 
   return data;
 };
@@ -30,19 +31,37 @@ export const Othello = () => {
   const [whiteNum, setWhiteNum] = useState(2);
   const [isFirstTurn, setIsFirstTurn] = useState(true);
 
+  // 勝敗判定
+  useEffect(() => {
+    const judgement = judge(blackNum, whiteNum);
+    switch (judgement) {
+      case Judgement.BlackIsWin:
+        alert('黒の勝ち');
+        break;
+      case Judgement.WhiteIsWin:
+        alert('白の勝ち');
+        break;
+      case Judgement.Draw:
+        alert('引き分け');
+        break;
+      default:
+        break;
+    }
+  }, [histories, blackNum, whiteNum]);
+
   const onClickCell = (rowIndex: number, colIndex: number) => {
     const cell: CellInfo = { rowIndex, colIndex, status: isFirstTurn ? CellStatus.Black : CellStatus.White };
     const target = histories[turnCount];
 
+    // ひっくり返す
     const result = reverce(target, cell);
+    if (!result) return;
 
-    if (!result) {
-      return;
-    }
-
+    // 履歴に追加
     const newHistories = histories.map((history) => history.map((row) => [...row]));
     newHistories.push(result);
 
+    // コマ数をカウント
     const { blackNum, whiteNum } = getPiecesNum(target);
 
     setHistories(newHistories);

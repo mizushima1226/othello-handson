@@ -4,6 +4,13 @@ export enum CellStatus {
   Empty,
 }
 
+export enum Judgement {
+  None,
+  BlackIsWin,
+  WhiteIsWin,
+  Draw,
+}
+
 export type Position = {
   rowIndex: number;
   colIndex: number;
