@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { Cell } from './Cell';
+import { Counter } from './Counter';
 
 import { Judgement, CellInfo, CellStatus } from '../types/type';
 import { ROW_MAX_NUM, COL_MAX_NUM } from '../utils/const';
@@ -97,25 +98,24 @@ export const Othello = () => {
   };
 
   return (
-    <>
-      <SPage>
-        <SGameInfo>
-          <p>{isFirstTurn ? '黒のターン' : '白のターン'}</p>
-          <p>黒の数:{blackNum}</p>
-          <p>白の数:{whiteNum}</p>
-          <button type="button" onClick={onClickGoToPrevHistory}>
-            戻る
-          </button>
-          <button type="button" onClick={onClickGoToNextHistory}>
-            進む
-          </button>
-          <button type="button" onClick={onClickPass}>
-            パス
-          </button>
-          <button type="button" onClick={onClickReset}>
-            リセット
-          </button>
-        </SGameInfo>
+    <div>
+      <SGameInfo>
+        <Counter status={CellStatus.Black} count={blackNum} isTurn={isFirstTurn} />
+        <Counter status={CellStatus.White} count={whiteNum} isTurn={!isFirstTurn} />
+        {/* <button type="button" onClick={onClickGoToPrevHistory}>
+          戻る
+        </button>
+        <button type="button" onClick={onClickGoToNextHistory}>
+          進む
+        </button>
+        <button type="button" onClick={onClickPass}>
+          パス
+        </button>
+        <button type="button" onClick={onClickReset}>
+          リセット
+        </button> */}
+      </SGameInfo>
+      <SBoard>
         {histories[turnCount].map((row, rowIndex) => (
           <SRow key={rowIndex}>
             {row.map((status, colIndex) => (
@@ -123,13 +123,14 @@ export const Othello = () => {
             ))}
           </SRow>
         ))}
-      </SPage>
-    </>
+      </SBoard>
+    </div>
   );
 };
 
-const SPage = styled.div`
-  margin-top: 100px;
+const SBoard = styled.div`
+  background-color: #000;
+  padding: 10px;
 `;
 
 const SRow = styled.div`
@@ -139,4 +140,5 @@ const SRow = styled.div`
 const SGameInfo = styled.div`
   display: flex;
   justify-content: space-between;
+  margin-bottom: 0.5rem;
 `;

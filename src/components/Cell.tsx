@@ -5,7 +5,7 @@ import { COLOR } from '../utils/const';
 
 type Props = {
   status: CellStatus;
-  onClick: () => void;
+  onClick?: () => void;
 };
 
 export const Cell = (props: Props) => {
