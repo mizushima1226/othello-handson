@@ -31,6 +31,15 @@ export const Othello = () => {
   const [whiteNum, setWhiteNum] = useState(2);
   const [isFirstTurn, setIsFirstTurn] = useState(true);
 
+  // コマ数をカウント
+  useEffect(() => {
+    const target = histories[turnCount];
+
+    const { blackNum, whiteNum } = getPiecesNum(target);
+    setBlackNum(blackNum);
+    setWhiteNum(whiteNum);
+  }, [histories, turnCount]);
+
   // 勝敗判定
   useEffect(() => {
     const judgement = judge(blackNum, whiteNum);
@@ -47,7 +56,7 @@ export const Othello = () => {
       default:
         break;
     }
-  }, [histories, blackNum, whiteNum]);
+  }, [blackNum, whiteNum]);
 
   const onClickCell = (rowIndex: number, colIndex: number) => {
     const cell: CellInfo = { rowIndex, colIndex, status: isFirstTurn ? CellStatus.Black : CellStatus.White };
@@ -58,17 +67,33 @@ export const Othello = () => {
     if (!result) return;
 
     // 履歴に追加
-    const newHistories = histories.map((history) => history.map((row) => [...row]));
+    const newHistories = histories.slice(0, turnCount + 1).map((history) => history.map((row) => [...row]));
     newHistories.push(result);
-
-    // コマ数をカウント
-    const { blackNum, whiteNum } = getPiecesNum(target);
 
     setHistories(newHistories);
     setTurnCount(turnCount + 1);
     setIsFirstTurn(!isFirstTurn);
-    setBlackNum(blackNum);
-    setWhiteNum(whiteNum);
+  };
+
+  const onClickGoToPrevHistory = () => {
+    if (turnCount === 0) return;
+    setTurnCount(turnCount - 1);
+    setIsFirstTurn(!isFirstTurn);
+  };
+
+  const onClickGoToNextHistory = () => {
+    if (turnCount >= histories.length - 1) return;
+    setTurnCount(turnCount + 1);
+    setIsFirstTurn(!isFirstTurn);
+  };
+
+  const onClickPass = () => setIsFirstTurn(!isFirstTurn);
+  const onClickReset = () => {
+    setHistories([initHistory()]);
+    setBlackNum(2);
+    setWhiteNum(2);
+    setTurnCount(0);
+    setIsFirstTurn(true);
   };
 
   return (
@@ -78,6 +103,18 @@ export const Othello = () => {
           <p>{isFirstTurn ? '黒のターン' : '白のターン'}</p>
           <p>黒の数:{blackNum}</p>
           <p>白の数:{whiteNum}</p>
+          <button type="button" onClick={onClickGoToPrevHistory}>
+            戻る
+          </button>
+          <button type="button" onClick={onClickGoToNextHistory}>
+            進む
+          </button>
+          <button type="button" onClick={onClickPass}>
+            パス
+          </button>
+          <button type="button" onClick={onClickReset}>
+            リセット
+          </button>
         </SGameInfo>
         {histories[turnCount].map((row, rowIndex) => (
           <SRow key={rowIndex}>
