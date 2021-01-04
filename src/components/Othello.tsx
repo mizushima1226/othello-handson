@@ -6,7 +6,7 @@ import { Counter } from './Counter';
 import { IconButton } from './IconButton';
 
 import { Judgement, CellInfo, CellStatus } from '../types/type';
-import { ROW_MAX_NUM, COL_MAX_NUM } from '../utils/const';
+import { ROW_MAX_NUM, COL_MAX_NUM, COLOR } from '../utils/const';
 import { reverce, getPiecesNum, judge } from '../utils/othelloUtil';
 
 const initHistory = (): Array<Array<CellStatus>> => {
@@ -25,6 +25,8 @@ const initHistory = (): Array<Array<CellStatus>> => {
 
   return data;
 };
+
+const colItems = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 export const Othello = () => {
   const [histories, setHistories] = useState([initHistory()]);
@@ -112,8 +114,15 @@ export const Othello = () => {
         <Counter status={CellStatus.White} count={whiteNum} isTurn={!isFirstTurn} />
       </SGameInfo>
       <SBoard>
+        <SRow>
+          <SDummyCol />
+          {colItems.map((item) => (
+            <SColInfo>{item}</SColInfo>
+          ))}
+        </SRow>
         {histories[turnCount].map((row, rowIndex) => (
           <SRow key={rowIndex}>
+            <SRowInfo>{rowIndex + 1}</SRowInfo>
             {row.map((status, colIndex) => (
               <Cell key={colIndex} status={status} onClick={() => onClickCell(rowIndex, colIndex)} />
             ))}
@@ -125,12 +134,32 @@ export const Othello = () => {
 };
 
 const SBoard = styled.div`
-  background-color: #000;
-  padding: 10px;
+  background-color: ${COLOR.BLACK};
+  padding: 0px 20px 20px 0px;
 `;
 
 const SRow = styled.div`
   display: flex;
+`;
+
+const SRowInfo = styled.div`
+  width: 20px;
+  height: 100%;
+  color: white;
+  text-align: center;
+  line-height: 50px;
+`;
+
+const SColInfo = styled.div`
+  width: 50px;
+  height: 20px;
+  color: white;
+  text-align: center;
+  line-height: 20px;
+`;
+
+const SDummyCol = styled(SColInfo)`
+  width: 20px;
 `;
 
 const SGameInfo = styled.div`
