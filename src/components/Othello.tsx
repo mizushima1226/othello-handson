@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { Cell } from './Cell';
 import { Counter } from './Counter';
+import { IconButton } from './IconButton';
 
 import { Judgement, CellInfo, CellStatus } from '../types/type';
 import { ROW_MAX_NUM, COL_MAX_NUM } from '../utils/const';
@@ -89,6 +90,7 @@ export const Othello = () => {
   };
 
   const onClickPass = () => setIsFirstTurn(!isFirstTurn);
+
   const onClickReset = () => {
     setHistories([initHistory()]);
     setBlackNum(2);
@@ -101,19 +103,13 @@ export const Othello = () => {
     <div>
       <SGameInfo>
         <Counter status={CellStatus.Black} count={blackNum} isTurn={isFirstTurn} />
+        <SActions>
+          <IconButton icon="angle double left" description="戻る" onClick={onClickGoToPrevHistory} />
+          <IconButton icon="angle double right" description="進む" onClick={onClickGoToNextHistory} />
+          <IconButton icon="step forward" description="パス" onClick={onClickPass} />
+          <IconButton icon="redo" description="最初から" onClick={onClickReset} />
+        </SActions>
         <Counter status={CellStatus.White} count={whiteNum} isTurn={!isFirstTurn} />
-        {/* <button type="button" onClick={onClickGoToPrevHistory}>
-          戻る
-        </button>
-        <button type="button" onClick={onClickGoToNextHistory}>
-          進む
-        </button>
-        <button type="button" onClick={onClickPass}>
-          パス
-        </button>
-        <button type="button" onClick={onClickReset}>
-          リセット
-        </button> */}
       </SGameInfo>
       <SBoard>
         {histories[turnCount].map((row, rowIndex) => (
@@ -141,4 +137,9 @@ const SGameInfo = styled.div`
   display: flex;
   justify-content: space-between;
   margin-bottom: 0.5rem;
+`;
+
+const SActions = styled.div`
+  display: flex;
+  align-items: center;
 `;
