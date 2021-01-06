@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { Cell } from './Cell';
+import { Counter } from './Counter';
+import { IconButton } from './IconButton';
 
 import { Judgement, CellInfo, CellStatus } from '../types/type';
-import { ROW_MAX_NUM, COL_MAX_NUM } from '../utils/const';
+import { ROW_MAX_NUM, COL_MAX_NUM, COLOR } from '../utils/const';
 import { reverce, getPiecesNum, judge } from '../utils/othelloUtil';
 
 const initHistory = (): Array<Array<CellStatus>> => {
@@ -23,6 +25,8 @@ const initHistory = (): Array<Array<CellStatus>> => {
 
   return data;
 };
+
+const colItems = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 export const Othello = () => {
   const [histories, setHistories] = useState([initHistory()]);
@@ -88,6 +92,7 @@ export const Othello = () => {
   };
 
   const onClickPass = () => setIsFirstTurn(!isFirstTurn);
+
   const onClickReset = () => {
     setHistories([initHistory()]);
     setBlackNum(2);
@@ -97,46 +102,73 @@ export const Othello = () => {
   };
 
   return (
-    <>
-      <SPage>
-        <SGameInfo>
-          <p>{isFirstTurn ? '黒のターン' : '白のターン'}</p>
-          <p>黒の数:{blackNum}</p>
-          <p>白の数:{whiteNum}</p>
-          <button type="button" onClick={onClickGoToPrevHistory}>
-            戻る
-          </button>
-          <button type="button" onClick={onClickGoToNextHistory}>
-            進む
-          </button>
-          <button type="button" onClick={onClickPass}>
-            パス
-          </button>
-          <button type="button" onClick={onClickReset}>
-            リセット
-          </button>
-        </SGameInfo>
+    <div>
+      <SGameInfo>
+        <Counter status={CellStatus.Black} count={blackNum} isTurn={isFirstTurn} />
+        <SActions>
+          <IconButton icon="angle double left" description="戻る" onClick={onClickGoToPrevHistory} />
+          <IconButton icon="angle double right" description="進む" onClick={onClickGoToNextHistory} />
+          <IconButton icon="step forward" description="パス" onClick={onClickPass} />
+          <IconButton icon="redo" description="最初から" onClick={onClickReset} />
+        </SActions>
+        <Counter status={CellStatus.White} count={whiteNum} isTurn={!isFirstTurn} />
+      </SGameInfo>
+      <SBoard>
+        <SRow>
+          <SDummyCol />
+          {colItems.map((item) => (
+            <SColInfo>{item}</SColInfo>
+          ))}
+        </SRow>
         {histories[turnCount].map((row, rowIndex) => (
           <SRow key={rowIndex}>
+            <SRowInfo>{rowIndex + 1}</SRowInfo>
             {row.map((status, colIndex) => (
               <Cell key={colIndex} status={status} onClick={() => onClickCell(rowIndex, colIndex)} />
             ))}
           </SRow>
         ))}
-      </SPage>
-    </>
+      </SBoard>
+    </div>
   );
 };
 
-const SPage = styled.div`
-  margin-top: 100px;
+const SBoard = styled.div`
+  background-color: ${COLOR.BLACK};
+  padding: 0px 20px 20px 0px;
 `;
 
 const SRow = styled.div`
   display: flex;
 `;
 
+const SRowInfo = styled.div`
+  width: 20px;
+  height: 100%;
+  color: white;
+  text-align: center;
+  line-height: 50px;
+`;
+
+const SColInfo = styled.div`
+  width: 50px;
+  height: 20px;
+  color: white;
+  text-align: center;
+  line-height: 20px;
+`;
+
+const SDummyCol = styled(SColInfo)`
+  width: 20px;
+`;
+
 const SGameInfo = styled.div`
   display: flex;
   justify-content: space-between;
+  margin-bottom: 0.5rem;
+`;
+
+const SActions = styled.div`
+  display: flex;
+  align-items: center;
 `;
