@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Cell } from './Cell';
 import { Counter } from './Counter';
 import { IconButton } from './IconButton';
+import { Confirm } from './Confirm';
 
 import { Judgement, CellInfo, CellStatus } from '../types/type';
 import { ROW_MAX_NUM, COL_MAX_NUM, COLOR } from '../utils/const';
@@ -34,6 +35,7 @@ export const Othello = () => {
   const [blackNum, setBlackNum] = useState(2);
   const [whiteNum, setWhiteNum] = useState(2);
   const [isFirstTurn, setIsFirstTurn] = useState(true);
+  const [open, setOpen] = useState(false);
 
   // コマ数をカウント
   useEffect(() => {
@@ -93,13 +95,18 @@ export const Othello = () => {
 
   const onClickPass = () => setIsFirstTurn(!isFirstTurn);
 
-  const onClickReset = () => {
+  const onClickReset = () => setOpen(true);
+
+  const onConfirm = () => {
     setHistories([initHistory()]);
     setBlackNum(2);
     setWhiteNum(2);
     setTurnCount(0);
     setIsFirstTurn(true);
+    setOpen(false);
   };
+
+  const onCancel = () => setOpen(false);
 
   return (
     <div>
@@ -129,6 +136,7 @@ export const Othello = () => {
           </SRow>
         ))}
       </SBoard>
+      <Confirm open={open} content="ゲームをリセットします。" onConfirm={onConfirm} onCancel={onCancel} />
     </div>
   );
 };
