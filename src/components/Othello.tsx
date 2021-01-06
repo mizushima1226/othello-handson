@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Cell } from './Cell';
 import { Counter } from './Counter';
 import { IconButton } from './IconButton';
-import { Confirm } from './Confirm';
+import { Modal } from './Modal';
 
 import { Judgement, CellInfo, CellStatus } from '../types/type';
 import { ROW_MAX_NUM, COL_MAX_NUM, COLOR } from '../utils/const';
@@ -35,7 +35,9 @@ export const Othello = () => {
   const [blackNum, setBlackNum] = useState(2);
   const [whiteNum, setWhiteNum] = useState(2);
   const [isFirstTurn, setIsFirstTurn] = useState(true);
-  const [open, setOpen] = useState(false);
+  const [openConfirm, setOpenConfirm] = useState(false);
+  const [openResult, setOpenResult] = useState(false);
+  const [resultMessage, setResultMessage] = useState('');
 
   // コマ数をカウント
   useEffect(() => {
@@ -51,13 +53,16 @@ export const Othello = () => {
     const judgement = judge(blackNum, whiteNum);
     switch (judgement) {
       case Judgement.BlackIsWin:
-        alert('黒の勝ち');
+        setResultMessage('黒の勝ち');
+        setOpenResult(true);
         break;
       case Judgement.WhiteIsWin:
-        alert('白の勝ち');
+        setResultMessage('白の勝ち');
+        setOpenResult(true);
         break;
       case Judgement.Draw:
-        alert('引き分け');
+        setResultMessage('引き分け');
+        setOpenResult(true);
         break;
       default:
         break;
@@ -95,18 +100,21 @@ export const Othello = () => {
 
   const onClickPass = () => setIsFirstTurn(!isFirstTurn);
 
-  const onClickReset = () => setOpen(true);
+  const onClickReset = () => setOpenConfirm(true);
 
-  const onConfirm = () => {
+  const onReset = () => {
     setHistories([initHistory()]);
     setBlackNum(2);
     setWhiteNum(2);
     setTurnCount(0);
     setIsFirstTurn(true);
-    setOpen(false);
+    setOpenConfirm(false);
   };
 
-  const onCancel = () => setOpen(false);
+  const onRegame = () => {
+    onReset();
+    setOpenResult(false);
+  };
 
   return (
     <div>
@@ -136,7 +144,24 @@ export const Othello = () => {
           </SRow>
         ))}
       </SBoard>
-      <Confirm open={open} content="ゲームをリセットします。" onConfirm={onConfirm} onCancel={onCancel} />
+      <Modal
+        content="ゲームをリセットします"
+        okText="OK"
+        cancelText="キャンセル"
+        onOk={onReset}
+        open={openConfirm}
+        onOpen={() => setOpenConfirm(true)}
+        onClose={() => setOpenConfirm(false)}
+      />
+      <Modal
+        content={resultMessage}
+        okText="もう一回遊ぶ"
+        cancelText="とじる"
+        onOk={onRegame}
+        open={openResult}
+        onOpen={() => setOpenResult(true)}
+        onClose={() => setOpenResult(false)}
+      />
     </div>
   );
 };
