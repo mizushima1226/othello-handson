@@ -1,12 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import 'semantic-ui-css/semantic.min.css';
 
-import { App } from './components/App';
+import { Othello } from 'components/Othello';
 import 'normalize.css';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Othello />
   </React.StrictMode>,
   document.getElementById('root'),
 );

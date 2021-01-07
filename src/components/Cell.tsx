@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
-import { CellStatus } from '../types/type';
-import { COLOR } from '../utils/const';
+import { CellStatus } from 'types/type';
+import { COLOR } from 'utils/const';
 
 type Props = {
   status: CellStatus;
