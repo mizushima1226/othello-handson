@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 
-import { Cell } from './Cell';
-import { Counter } from './Counter';
-import { IconButton } from './IconButton';
-import { Modal } from './Modal';
+import { Cell } from 'components/Cell';
+import { Counter } from 'components/Counter';
+import { IconButton } from 'components/IconButton';
+import { Modal } from 'components/Modal';
 
-import { Judgement, CellInfo, CellStatus } from '../types/type';
-import { ROW_MAX_NUM, COL_MAX_NUM, COLOR } from '../utils/const';
-import { reverce, getPiecesNum, judge } from '../utils/othelloUtil';
+import { Judgement, CellInfo, CellStatus } from 'types/type';
+import { ROW_MAX_NUM, COL_MAX_NUM, COLOR } from 'utils/const';
+import { reverce, getPiecesNum, judge } from 'utils/othelloUtil';
 
 const initHistory = (): Array<Array<CellStatus>> => {
   const temRow = Array(COL_MAX_NUM).fill(CellStatus.Empty);
@@ -32,25 +32,17 @@ const colItems = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 export const Othello = () => {
   const [histories, setHistories] = useState([initHistory()]);
   const [turnCount, setTurnCount] = useState(0);
-  const [blackNum, setBlackNum] = useState(2);
-  const [whiteNum, setWhiteNum] = useState(2);
   const [isFirstTurn, setIsFirstTurn] = useState(true);
   const [openConfirm, setOpenConfirm] = useState(false);
   const [openResult, setOpenResult] = useState(false);
   const [resultMessage, setResultMessage] = useState('');
 
-  // コマ数をカウント
-  useEffect(() => {
-    const target = histories[turnCount];
-
-    const { blackNum, whiteNum } = getPiecesNum(target);
-    setBlackNum(blackNum);
-    setWhiteNum(whiteNum);
-  }, [histories, turnCount]);
+  const { blackNum, whiteNum } = useMemo(() => getPiecesNum(histories[turnCount]), [histories, turnCount]);
 
   // 勝敗判定
   useEffect(() => {
     const judgement = judge(blackNum, whiteNum);
+
     switch (judgement) {
       case Judgement.BlackIsWin:
         setResultMessage('黒の勝ち');
@@ -62,10 +54,9 @@ export const Othello = () => {
         break;
       case Judgement.Draw:
         setResultMessage('引き分け');
-        setOpenResult(true);
         break;
       default:
-        break;
+        return;
     }
   }, [blackNum, whiteNum]);
 
@@ -85,86 +76,87 @@ export const Othello = () => {
     setTurnCount(turnCount + 1);
     setIsFirstTurn(!isFirstTurn);
   };
-
   const onClickGoToPrevHistory = () => {
     if (turnCount === 0) return;
     setTurnCount(turnCount - 1);
     setIsFirstTurn(!isFirstTurn);
   };
-
   const onClickGoToNextHistory = () => {
     if (turnCount >= histories.length - 1) return;
     setTurnCount(turnCount + 1);
     setIsFirstTurn(!isFirstTurn);
   };
-
-  const onClickPass = () => setIsFirstTurn(!isFirstTurn);
-
-  const onClickReset = () => setOpenConfirm(true);
-
   const onReset = () => {
     setHistories([initHistory()]);
-    setBlackNum(2);
-    setWhiteNum(2);
     setTurnCount(0);
     setIsFirstTurn(true);
     setOpenConfirm(false);
   };
-
   const onRegame = () => {
     onReset();
     setOpenResult(false);
   };
+  const onClickPass = () => setIsFirstTurn(!isFirstTurn);
+  const onClickReset = () => setOpenConfirm(true);
 
   return (
-    <div>
-      <SGameInfo>
-        <Counter status={CellStatus.Black} count={blackNum} isTurn={isFirstTurn} />
-        <SActions>
-          <IconButton icon="angle double left" description="戻る" onClick={onClickGoToPrevHistory} />
-          <IconButton icon="angle double right" description="進む" onClick={onClickGoToNextHistory} />
-          <IconButton icon="step forward" description="パス" onClick={onClickPass} />
-          <IconButton icon="redo" description="最初から" onClick={onClickReset} />
-        </SActions>
-        <Counter status={CellStatus.White} count={whiteNum} isTurn={!isFirstTurn} />
-      </SGameInfo>
-      <SBoard>
-        <SRow>
-          <SDummyCol />
-          {colItems.map((item) => (
-            <SColInfo>{item}</SColInfo>
-          ))}
-        </SRow>
-        {histories[turnCount].map((row, rowIndex) => (
-          <SRow key={rowIndex}>
-            <SRowInfo>{rowIndex + 1}</SRowInfo>
-            {row.map((status, colIndex) => (
-              <Cell key={colIndex} status={status} onClick={() => onClickCell(rowIndex, colIndex)} />
+    <SContainer>
+      <div>
+        <SGameInfo>
+          <Counter status={CellStatus.Black} count={blackNum} isTurn={isFirstTurn} />
+          <SActions>
+            <IconButton icon="angle double left" description="戻る" onClick={onClickGoToPrevHistory} />
+            <IconButton icon="angle double right" description="進む" onClick={onClickGoToNextHistory} />
+            <IconButton icon="step forward" description="パス" onClick={onClickPass} />
+            <IconButton icon="redo" description="最初から" onClick={onClickReset} />
+          </SActions>
+          <Counter status={CellStatus.White} count={whiteNum} isTurn={!isFirstTurn} />
+        </SGameInfo>
+        <SBoard>
+          <SRow>
+            <SDummyCol />
+            {colItems.map((item) => (
+              <SColInfo>{item}</SColInfo>
             ))}
           </SRow>
-        ))}
-      </SBoard>
-      <Modal
-        content="ゲームをリセットします"
-        okText="OK"
-        cancelText="キャンセル"
-        onOk={onReset}
-        open={openConfirm}
-        onOpen={() => setOpenConfirm(true)}
-        onClose={() => setOpenConfirm(false)}
-      />
-      <Modal
-        content={resultMessage}
-        okText="もう一回遊ぶ"
-        cancelText="とじる"
-        onOk={onRegame}
-        open={openResult}
-        onOpen={() => setOpenResult(true)}
-        onClose={() => setOpenResult(false)}
-      />
-    </div>
+          {histories[turnCount].map((row, rowIndex) => (
+            <SRow key={rowIndex}>
+              <SRowInfo>{rowIndex + 1}</SRowInfo>
+              {row.map((status, colIndex) => (
+                <Cell key={colIndex} status={status} onClick={() => onClickCell(rowIndex, colIndex)} />
+              ))}
+            </SRow>
+          ))}
+        </SBoard>
+        <Modal
+          content="ゲームをリセットします"
+          okText="OK"
+          cancelText="キャンセル"
+          onOk={onReset}
+          open={openConfirm}
+          onOpen={() => setOpenConfirm(true)}
+          onClose={() => setOpenConfirm(false)}
+        />
+        <Modal
+          content={resultMessage}
+          okText="もう一回遊ぶ"
+          cancelText="とじる"
+          onOk={onRegame}
+          open={openResult}
+          onOpen={() => setOpenResult(true)}
+          onClose={() => setOpenResult(false)}
+        />
+      </div>
+    </SContainer>
   );
 };
+
+const SContainer = styled.div`
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
 const SBoard = styled.div`
   background-color: ${COLOR.BLACK};
